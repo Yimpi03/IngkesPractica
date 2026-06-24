@@ -1,0 +1,193 @@
+<div class="quiz-wrap">
+
+  <!-- QUIZ ACTIVO -->
+  <ng-container *ngIf="!finished">
+
+    <!-- 🔥 TÍTULO CON EFECTO NEON -->
+    <h2 class="mod-title">
+      <span class="title-icon">⚡</span>
+      <span class="title-text">Quiz Interactivo</span>
+      <span class="title-badge" *ngIf="streak >= 3">🔥 Racha x{{ streak }}</span>
+    </h2>
+
+    <!-- PROGRESS BAR -->
+    <app-progress-bar [value]="progress" label="Avance"></app-progress-bar>
+
+    <!-- CONTADOR PREMIUM -->
+    <div class="q-meta">
+      <div class="q-meta-left">
+        <span class="q-num">
+          <span class="q-num-icon">📝</span>
+          {{ currentIndex + 1 }} / {{ questions.length }}
+        </span>
+      </div>
+      <div class="q-meta-right">
+        <span class="stat stat-correct">
+          <span class="stat-icon">✅</span>
+          <span class="stat-value">{{ correct }}</span>
+        </span>
+        <span class="stat stat-wrong">
+          <span class="stat-icon">❌</span>
+          <span class="stat-value">{{ wrong }}</span>
+        </span>
+        <span class="stat stat-score">
+          <span class="stat-icon">🏅</span>
+          <span class="stat-value">{{ score }}</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- FRASE CON EFECTO GLASS -->
+    <div class="phrase-card">
+      <div class="pc-label">
+        <span class="pc-label-icon">🌍</span>
+        ¿Qué significa en español?
+      </div>
+      <div class="pc-phrase">{{ current.phrase.en }}</div>
+      <div class="pc-hint" *ngIf="current.answered && !current.correct">
+        💡 Pista: piensa en el contexto...
+      </div>
+    </div>
+
+    <!-- OPCIONES CON ANIMACIÓN STAGGER -->
+    <div class="options-grid">
+      <button
+        *ngFor="let opt of current.options; let i = index"
+        class="opt"
+        [style.animation-delay]="i * 0.06 + 's'"
+        [class.opt-correct]="current.answered && current.correct && opt === current.phrase.es"
+        [class.opt-wrong]="current.answered && !current.correct && opt === current.chosen"
+        [class.opt-revealed]="current.revealed && opt === current.phrase.es"
+        [disabled]="current.answered"
+        (click)="answer(opt)">
+        <span class="opt-letter">{{ ['A', 'B', 'C', 'D'][i] }}</span>
+        <span class="opt-text">{{ opt }}</span>
+      </button>
+    </div>
+
+    <!-- FEEDBACK - SIN MOSTRAR LA RESPUESTA CORRECTA -->
+    <div class="feedback-box" *ngIf="current.answered" 
+         [class.fb-correct]="current.correct" 
+         [class.fb-wrong]="!current.correct">
+      
+      <div class="fb-header">
+        <span class="fb-icon">{{ current.correct ? '🎉' : '😅' }}</span>
+        <span class="fb-title">{{ current.correct ? '¡Correcto!' : '¡Incorrecto!' }}</span>
+      </div>
+
+      <!-- 🔥 SOLO MOSTRAMOS LA RESPUESTA SI EL USUARIO LA REVELA -->
+      <div *ngIf="current.revealed && !current.correct" class="fb-answer-reveal">
+        <div class="fb-answer-box">
+          <span class="fb-answer-label">Respuesta correcta:</span>
+          <span class="fb-answer-value">{{ current.phrase.es }}</span>
+        </div>
+      </div>
+
+      <!-- MENSAJE DE ÁNIMO -->
+      <div class="fb-message">
+        <span *ngIf="current.correct">{{ current.phrase.note }}</span>
+        <span *ngIf="!current.correct && !current.revealed">
+          No te rindas, ¡sigue intentándolo! 💪
+        </span>
+        <span *ngIf="!current.correct && current.revealed">
+          Ahora ya sabes la respuesta correcta. ¡La próxima será!
+        </span>
+      </div>
+
+      <!-- 🔥 BOTÓN PARA REVELAR LA RESPUESTA (SOLO SI FALLÓ Y NO LA HA REVELADO) -->
+      <button *ngIf="!current.correct && !current.revealed" 
+              class="btn-reveal" 
+              (click)="revealAnswer()">
+        <span class="btn-reveal-icon">👁️</span>
+        Ver respuesta correcta
+      </button>
+
+      <!-- BOTÓN EXPLÍCAME (SI YA REVELÓ O SI ES CORRECTO) -->
+      <button *ngIf="(!current.correct && current.revealed) || current.correct" 
+              class="btn-explain" 
+              (click)="toggleExplain()">
+        <span class="btn-explain-icon">{{ current.showExplain ? '🔼' : '💡' }}</span>
+        {{ current.showExplain ? 'Ocultar explicación' : 'Explícame más' }}
+      </button>
+
+      <!-- EXPLICACIÓN DETALLADA -->
+      <div class="explain-box" *ngIf="current.showExplain">
+        <div class="explain-content">
+          <div class="explain-row">
+            <span class="explain-label">📖 Inglés:</span>
+            <span class="explain-value">{{ current.phrase.en }}</span>
+          </div>
+          <div class="explain-row">
+            <span class="explain-label">🇪🇸 Español:</span>
+            <span class="explain-value">{{ current.phrase.es }}</span>
+          </div>
+          <div class="explain-row explain-note">
+            <span class="explain-label">📝 Nota:</span>
+            <span class="explain-value">{{ current.phrase.note }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTÓN SIGUIENTE CON EFECTO -->
+    <div class="btn-row" *ngIf="current.answered">
+      <button class="btn btn-primary" (click)="next()">
+        <span class="btn-text">
+          {{ currentIndex < questions.length - 1 ? 'Siguiente' : 'Ver resultados' }}
+        </span>
+        <span class="btn-icon">→</span>
+      </button>
+    </div>
+
+  </ng-container>
+
+  <!-- RESULTADO FINAL - WOW EFFECT -->
+  <div class="final-card" *ngIf="finished">
+    <div class="final-decoration">
+      <div class="final-sparkle" *ngFor="let i of [1,2,3,4,5,6]"></div>
+    </div>
+    
+    <div class="final-icon">{{ pct >= 70 ? '🏆' : '📚' }}</div>
+    <div class="final-score">{{ correct }}/{{ questions.length }}</div>
+    <div class="final-pct">{{ pct }}%</div>
+    <div class="final-stars">{{ stars }}</div>
+    <div class="final-level" [ngClass]="levelClass">{{ levelText }}</div>
+
+    <div class="result-stats">
+      <div class="rs rs-correct">
+        <div class="rs-icon">✅</div>
+        <div class="rs-num green">{{ correct }}</div>
+        <div class="rs-lbl">Correctas</div>
+      </div>
+      <div class="rs rs-wrong">
+        <div class="rs-icon">❌</div>
+        <div class="rs-num red">{{ wrong }}</div>
+        <div class="rs-lbl">Incorrectas</div>
+      </div>
+      <div class="rs rs-score">
+        <div class="rs-icon">🏅</div>
+        <div class="rs-num blue">{{ score }}</div>
+        <div class="rs-lbl">Puntos</div>
+      </div>
+    </div>
+
+    <div class="final-message" *ngIf="pct >= 90">
+      🌟 ¡Impresionante! Eres un verdadero experto.
+    </div>
+    <div class="final-message" *ngIf="pct >= 70 && pct < 90">
+      👏 ¡Muy bien! Sigue así para mejorar.
+    </div>
+    <div class="final-message" *ngIf="pct >= 50 && pct < 70">
+      📖 ¡Buen intento! Practica un poco más.
+    </div>
+    <div class="final-message" *ngIf="pct < 50">
+      💪 ¡No te rindas! La práctica hace al maestro.
+    </div>
+
+    <button class="btn btn-primary btn-restart" (click)="init()">
+      <span class="btn-icon">🔄</span>
+      <span class="btn-text">Repetir quiz</span>
+    </button>
+  </div>
+
+</div>

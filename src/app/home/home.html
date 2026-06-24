@@ -1,0 +1,155 @@
+<!-- home.html - Diseño Fresco y Elegante -->
+<div class="home-container">
+
+  <!-- HERO CON FONDO DIFUMINADO -->
+  <section class="hero-fresh">
+    <div class="hero-background">
+      <div class="bg-gradient-1"></div>
+      <div class="bg-gradient-2"></div>
+      <div class="bg-gradient-3"></div>
+      <div class="bg-blur"></div>
+    </div>
+    
+    <div class="hero-wrapper">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span>English Express 2026</span>
+        </div>
+        
+        <h1 class="hero-title">
+          <span class="title-light">Aprende inglés</span>
+          <span class="title-fresh">jugando</span>
+        </h1>
+        
+        <p class="hero-text">
+          25 expresiones esenciales · 5 modos de práctica · ¡Gratis!
+        </p>
+        
+        <div class="hero-buttons">
+          <button class="btn-fresh-primary" (click)="goTo('flashcards')">
+            <span>Empezar ahora</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="btn-fresh-secondary" (click)="scrollToModules()">
+            Explorar módulos
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Onda decorativa -->
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 120" fill="none">
+        <path d="M0 60L60 50C120 40 240 20 360 25C480 30 600 60 720 65C840 70 960 50 1080 40C1200 30 1320 35 1380 37.5L1440 40V120H0V60Z" fill="#F8F7FF"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- CARDS DESTACADAS -->
+  <section class="featured-cards">
+    <div class="featured-grid">
+      <div class="featured-card" *ngFor="let f of featured">
+        <div class="featured-icon" [style.background]="f.color">
+          <span>{{ f.icon }}</span>
+        </div>
+        <div class="featured-info">
+          <h4>{{ f.title }}</h4>
+          <p>{{ f.desc }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÓDULOS - ESTILO ACORDEÓN -->
+  <section class="modules-fresh" id="modules">
+    <div class="modules-header-fresh">
+      <span class="section-badge">📚 Módulos</span>
+      <h2>Elige tu <span class="highlight-fresh">camino</span></h2>
+      <p>Cada módulo está diseñado para un estilo de aprendizaje único</p>
+    </div>
+
+    <div class="modules-grid-fresh">
+      <div
+        *ngFor="let m of modules; let i = index"
+        class="module-card-fresh"
+        [style.animation-delay]="i * 0.07 + 's'"
+        (click)="goTo(m.route)">
+        
+        <div class="module-card-inner">
+          <div class="module-left">
+            <div class="module-number">0{{ i + 1 }}</div>
+            <div class="module-icon-fresh" [style.background]="m.color">
+              <span>{{ m.icon }}</span>
+            </div>
+            <div class="module-info">
+              <h3>{{ m.title }}</h3>
+              <p>{{ m.desc }}</p>
+            </div>
+          </div>
+          <div class="module-right">
+            <span class="module-tag-fresh">{{ m.tag }}</span>
+            <span class="module-arrow-fresh">→</span>
+          </div>
+        </div>
+        
+        <div class="module-progress-fresh" *ngIf="getProgress(m.route) > 0">
+          <div class="module-progress-bar" [style.width.%]="getProgress(m.route)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES CON FONDO -->
+  <section class="features-fresh">
+    <div class="features-background">
+      <div class="features-bg-blob-1"></div>
+      <div class="features-bg-blob-2"></div>
+    </div>
+    
+    <div class="features-wrapper">
+      <div class="features-header-fresh">
+        <span class="section-badge">✨ Características</span>
+        <h2>Diseñado para <span class="highlight-fresh">aprender</span></h2>
+      </div>
+      
+      <div class="features-grid-fresh">
+        <div class="feature-card-fresh">
+          <div class="feature-number">01</div>
+          <div class="feature-icon-fresh">🎮</div>
+          <h4>Gamificación</h4>
+          <p>Sistemas de puntos y rachas para mantenerte motivado</p>
+        </div>
+        <div class="feature-card-fresh">
+          <div class="feature-number">02</div>
+          <div class="feature-icon-fresh">🧠</div>
+          <h4>Memorización</h4>
+          <p>Técnicas efectivas para retener vocabulario</p>
+        </div>
+        <div class="feature-card-fresh">
+          <div class="feature-number">03</div>
+          <div class="feature-icon-fresh">📊</div>
+          <h4>Progreso</h4>
+          <p>Mide tu avance con estadísticas detalladas</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="cta-fresh">
+    <div class="cta-fresh-container">
+      <div class="cta-fresh-content">
+        <span class="cta-fresh-emoji">🌟</span>
+        <h3>Comienza tu viaje hoy</h3>
+        <p>Únete a miles que ya están aprendiendo inglés</p>
+        <button class="cta-fresh-btn" (click)="goTo('flashcards')">
+          ¡Empezar ahora!
+        </button>
+      </div>
+    </div>
+  </section>
+
+</div>

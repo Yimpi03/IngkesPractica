@@ -1,0 +1,10 @@
+<div class="pb-wrap">
+  <div class="pb-track">
+    <div
+      class="pb-fill"
+      [style.width.%]="value"
+      [style.background]="color">
+    </div>
+  </div>
+  <div class="pb-label" *ngIf="label">{{ label }} · {{ value }}%</div>
+</div>

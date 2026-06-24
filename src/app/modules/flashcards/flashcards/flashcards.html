@@ -1,0 +1,149 @@
+<!-- flashcards.html -->
+<div class="flashcards-wrapper">
+
+  <!-- HEADER -->
+  <header class="flash-header">
+    <div class="logo">
+      <span class="logo-icon">◆</span>
+      <span>LexiCards</span>
+    </div>
+    <div class="header-actions">
+      <div class="score-pill">
+        <span class="score-icon">✦</span>
+        {{ score }} pts
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- TÍTULO SECCIÓN -->
+    <div class="section-top">
+      <div>
+        <div class="section-title">Módulo I</div>
+        <div class="section-sub">Toque la tarjeta para descubrir la traducción</div>
+      </div>
+      <div class="module-badge">25 expresiones</div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-wrap">
+      <div class="progress-fill" [style.width.%]="getProgress()"></div>
+    </div>
+    <div class="counter">{{ currentIndex + 1 }} / {{ phrases.length }}</div>
+
+    <!-- FLASHCARD CON IMAGEN REAL -->
+    <div class="flashcard-container">
+      <div class="flashcard" [class.flipped]="isFlipped" (click)="flipCard()">
+        
+        <!-- CARA FRONTAL -->
+        <div class="flashcard-front">
+          <!-- IMAGEN REAL DE PICSUM -->
+          <div class="card-image-wrapper">
+            <ng-container *ngIf="currentPhrase">
+              <img 
+                *ngIf="currentPhrase.imageUrl && !currentPhrase.imageLoading" 
+                [src]="currentPhrase.imageUrl" 
+                [alt]="currentPhrase.en"
+                class="card-image"
+                (error)="onImageError()"
+              />
+              
+              <!-- Estado de carga -->
+              <div class="card-image-loading" *ngIf="currentPhrase.imageLoading">
+                <div class="loading-spinner"></div>
+              </div>
+              
+              <!-- Fallback si no carga -->
+              <div class="card-image-fallback" *ngIf="!currentPhrase.imageUrl && !currentPhrase.imageLoading">
+                <span class="fallback-icon">📷</span>
+                <span class="fallback-text">Sin imagen</span>
+                <button class="btn btn-refresh" (click)="refreshCurrentImage(); $event.stopPropagation()">
+                  ↻ Buscar imagen
+                </button>
+              </div>
+            </ng-container>
+          </div>
+          
+          <div class="card-badge">EN</div>
+          <div class="card-phrase">{{ currentPhrase?.en }}</div>
+          <div class="card-hint">↻ tocar para girar</div>
+        </div>
+        
+        <!-- CARA TRASERA -->
+        <div class="flashcard-back">
+          <div class="card-badge">ES</div>
+          <div class="card-phrase">{{ currentPhrase?.es }}</div>
+          <div class="card-hint">↻ tocar para girar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTROLES DE NAVEGACIÓN -->
+    <div class="nav-controls">
+      <button class="btn btn-nav btn-prev" (click)="prevCard()">
+        <span class="btn-icon">←</span> Anterior
+      </button>
+      <button class="btn btn-nav btn-next" (click)="nextCard()">
+        Siguiente <span class="btn-icon">→</span>
+      </button>
+    </div>
+
+    <!-- CONTROLES SECUNDARIOS -->
+    <div class="controls-secondary">
+      <div class="voice-control-group">
+        <button class="btn btn-voice" (click)="speakPhrase()">
+          <span class="btn-icon">◉</span> Escuchar
+        </button>
+        <select class="voice-select" (change)="onVoiceChange($event)">
+          <option *ngFor="let voice of voices" [value]="voice.name">
+            {{ voice.name }} ({{ voice.lang }})
+          </option>
+        </select>
+      </div>
+
+      <button class="btn btn-fav" [class.active]="isFavorite()" (click)="toggleFav()">
+        {{ isFavorite() ? '★' : '☆' }} Favorito
+      </button>
+    </div>
+
+    <!-- NOTE BUTTON -->
+    <div class="note-toggle-wrap">
+      <button class="btn btn-note" (click)="toggleNote()">
+        {{ showNote ? '▾ Ocultar nota' : '▸ Ver nota' }}
+      </button>
+    </div>
+
+    <!-- NOTE BOX -->
+    <div class="note-box" [class.visible]="showNote">
+      <div class="note-icon">ⓘ</div>
+      <div class="note-content">
+        <span class="note-label">Nota</span>
+        {{ currentPhrase?.note }}
+      </div>
+    </div>
+
+    <!-- FAVORITOS -->
+    <div class="favs-section" *ngIf="favorites.size > 0">
+      <div class="favs-header">
+        <span class="favs-icon">✦</span>
+        <span class="favs-title">Favoritos</span>
+        <span class="favs-count">{{ favorites.size }}</span>
+      </div>
+      <div class="favs-list">
+        <div
+          *ngFor="let fav of getFavoritesList()"
+          class="fav-chip"
+          (click)="goToCard(fav)">
+          {{ getPhraseByIndex(fav)?.en }}
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER DECORATIVO -->
+    <div class="footer-divider"></div>
+    <div class="footer-note">— Colección de expresiones cotidianas —</div>
+
+  </div>
+
+</div>

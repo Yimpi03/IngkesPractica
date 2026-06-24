@@ -1,0 +1,34 @@
+<!-- header.html - Versión Compacta -->
+<header class="app-header">
+  <div class="header-inner">
+
+    <!-- LOGO -->
+    <div class="logo" (click)="goTo('/')">
+      <span class="logo-icon">🚀</span>
+      <span class="logo-text">English <span class="logo-highlight">Express</span></span>
+    </div>
+
+    <!-- NAV -->
+    <nav class="nav-links">
+      <button
+        *ngFor="let item of navItems"
+        class="nav-btn"
+        [class.active]="isActive(item.route)"
+        (click)="goTo(item.route)">
+        <span class="nav-icon">{{ item.icon }}</span>
+        <span class="nav-label">{{ item.label }}</span>
+      </button>
+    </nav>
+
+    <!-- SCORE -->
+    <div class="header-stats">
+      <div class="stat-pill">
+        ⭐ {{ stats.score }}
+      </div>
+      <div class="stat-pill streak" *ngIf="stats.streak > 0">
+        🔥 {{ stats.streak }}
+      </div>
+    </div>
+
+  </div>
+</header>

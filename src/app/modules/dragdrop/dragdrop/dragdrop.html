@@ -1,0 +1,174 @@
+<div class="dnd-wrap">
+
+  <h2 class="mod-title">
+    <span class="emoji">🎯</span> English Express
+  </h2>
+  <p class="mod-sub">Arrastra cada traducción al recuadro correcto</p>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-fill" [style.width.%]="progress"></div>
+  </div>
+  <div class="progress-label">
+    <span>Completado</span>
+    <span>{{ progress }}%</span>
+  </div>
+
+  <!-- BANCO DE TRADUCCIONES -->
+  <div class="bank-label">
+    🗃️ Traducciones disponibles
+    <span class="badge">{{ bank.length }}</span>
+  </div>
+
+  <div class="bank">
+    <!-- MOSTRAR TODAS LAS TRADUCCIONES DEL BANCO -->
+    <div
+      *ngFor="let es of bank; let i = index"
+      class="chip"
+      draggable="true"
+      (dragstart)="onDragStart(es)"
+      [class.dragging]="dragValue === es">
+      <span class="chip-number">#{{ i + 1 }}</span>
+      {{ es }}
+    </div>
+
+    <!-- MENSAJE CUANDO EL BANCO ESTÁ VACÍO -->
+    <div *ngIf="bank.length === 0 && !checked" class="bank-empty">
+      ✅ ¡Todas las traducciones están colocadas!
+    </div>
+  </div>
+
+  <!-- LISTA DE FRASES -->
+  <div class="phrases-list">
+    <div
+      *ngFor="let item of items; let i = index"
+      class="phrase-block"
+      [class.correct-block]="item.status === 'correct'"
+      [class.incorrect-block]="item.status === 'incorrect'"
+      [class.error-shake]="item.showError">
+
+      <div class="phrase-header">
+        <span class="phrase-number">📝 FRASE {{ i + 1 }}</span>
+        <span class="phrase-status" *ngIf="item.status === 'correct'">✅</span>
+        <span class="phrase-status" *ngIf="item.status === 'incorrect'">❌</span>
+      </div>
+
+      <div class="phrase-row">
+        <div class="phrase-en">
+          <span class="icon">🔤</span>
+          <span class="phrase-text">{{ item.phrase.en }}</span>
+          <!-- PISTA -->
+          <span *ngIf="item.showHint" class="hint-badge">
+            💡 Pista: {{ item.phrase.es | slice:0:3 }}...
+          </span>
+        </div>
+
+        <!-- ZONA DROP -->
+        <div
+          class="drop-zone"
+          [class.filled]="item.status === 'filled'"
+          [class.correct]="item.status === 'correct'"
+          [class.incorrect]="item.status === 'incorrect'"
+          [class.drag-over]="dragOverItem === item"
+          [class.error]="item.showError"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop(item, $event)"
+          (click)="removeFromZone(item)">
+
+          <!-- VACÍO -->
+          <span *ngIf="!item.filled" class="zone-placeholder">
+            📥 Suelta la traducción aquí
+          </span>
+
+          <!-- LLENO -->
+          <span *ngIf="item.filled" class="zone-value">
+            <span class="zone-emoji">📌</span>
+            {{ item.filled }}
+            <span *ngIf="!checked && item.status !== 'correct'" class="zone-remove" title="Quitar">✕</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- FEEDBACK DE ERROR -->
+      <div class="row-feedback" *ngIf="item.showError && !checked">
+        <div class="fb-err">
+          <span class="fb-icon">❌</span>
+          <span>
+            <span class="fb-detail">"{{ item.filled }}" no es correcto para esta frase</span>
+            <span class="fb-hint">💡 Intenta con otra palabra</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- FEEDBACK CUANDO ESTÁ CORRECTO -->
+      <div class="row-feedback" *ngIf="item.status === 'correct' && checked">
+        <div class="fb-ok">
+          <span class="fb-icon">✅</span>
+          <span>¡Correcto! <span class="fb-detail">"{{ item.filled }}" es la traducción correcta</span></span>
+        </div>
+      </div>
+
+      <!-- FEEDBACK DE VERIFICACIÓN -->
+      <div class="row-feedback" *ngIf="checked && item.status === 'incorrect'">
+        <div class="fb-err">
+          <span class="fb-icon">❌</span>
+          <span *ngIf="item.filled">
+            <span class="fb-detail">"{{ item.filled }}" es incorrecto</span>
+            <span class="fb-detail">La respuesta correcta es: <b>"{{ item.phrase.es }}"</b></span>
+          </span>
+          <span *ngIf="!item.filled">
+            <span class="fb-detail">Sin respuesta</span>
+            <span class="fb-detail">La respuesta correcta es: <b>"{{ item.phrase.es }}"</b></span>
+          </span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RESULTADO -->
+  <div
+    class="result-banner"
+    *ngIf="checked"
+    [class.perfect]="isPerfect"
+    [class.good]="!isPerfect && correctCount / items.length >= 0.7"
+    [class.keep-going]="!isPerfect && correctCount / items.length < 0.7">
+
+    <span class="result-icon">
+      {{ isPerfect ? '🎉' : correctCount / items.length >= 0.7 ? '👏' : '💪' }}
+    </span>
+
+    <div class="result-text">
+      <span class="highlight">{{ correctCount }}</span> / {{ items.length }}
+    </div>
+
+    <div class="result-details">
+      {{ resultMessage }}
+    </div>
+  </div>
+
+  <!-- BOTONES -->
+  <div class="btn-row">
+    <button
+      class="btn btn-primary"
+      (click)="check()"
+      [disabled]="checked">
+      ✅ Verificar
+    </button>
+
+    <button
+      class="btn btn-danger"
+      (click)="init()">
+      🔄 Nueva Ronda
+    </button>
+
+    <button
+      class="btn btn-success"
+      (click)="check()"
+      *ngIf="!checked && allFilled">
+      🚀 Completar
+    </button>
+  </div>
+
+</div>

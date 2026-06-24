@@ -1,0 +1,130 @@
+<div class="exam-wrap">
+
+  <!-- PANTALLA DE INICIO -->
+  <div class="start-screen" *ngIf="!started && !finished">
+    <div class="start-icon">🎓</div>
+    <h2 class="start-title">Examen Final</h2>
+    <p class="start-sub">25 preguntas aleatorias · ⏱️ 5 minutos para completarlo</p>
+
+    <div class="rules">
+      <div class="rule-item"><span>❓</span> 25 preguntas de opción múltiple</div>
+      <div class="rule-item"><span>⏱️</span> Límite de 5 minutos</div>
+      <div class="rule-item"><span>⚠️</span> Penalización de 1 minuto al cambiar de pestaña</div>
+      <div class="rule-item"><span>💡</span> Botón "Explícame mi error" en cada fallo</div>
+      <div class="rule-item"><span>📊</span> Análisis inteligente al finalizar</div>
+    </div>
+
+    <button class="btn btn-primary btn-lg" (click)="start()">Comenzar Examen 🚀</button>
+  </div>
+
+  <!-- EXAMEN ACTIVO -->
+  <ng-container *ngIf="started && !finished">
+
+    <div class="exam-top">
+      <span class="q-num">Pregunta {{ currentIndex + 1 }} de {{ questions.length }}</span>
+      <div class="timer-wrapper">
+        <span class="timer-box" [class.timer-warning]="isTimeLow" [class.timer-penalty]="penaltyApplied">
+          ⏱️ <span id="timerDisplay">{{ timeStr }}</span>
+        </span>
+        <span class="timer-status" *ngIf="!isTabVisible" title="⚠️ Cambiaste de pestaña">
+          ⚠️
+        </span>
+      </div>
+    </div>
+
+    <app-progress-bar [value]="progress" label="Avance"></app-progress-bar>
+
+    <!-- FRASE -->
+    <div class="phrase-card">
+      <div class="pc-label">¿Qué significa en español?</div>
+      <div class="pc-phrase">{{ current.phrase.en }}</div>
+    </div>
+
+    <!-- OPCIONES -->
+    <div class="options-grid">
+      <button
+        *ngFor="let opt of current.options"
+        class="opt"
+        [class.opt-correct]="current.answered && opt === current.phrase.es"
+        [class.opt-wrong]="current.answered && opt === current.chosen && !current.correct"
+        [disabled]="current.answered || finished"
+        (click)="answer(opt)">
+        {{ opt }}
+      </button>
+    </div>
+
+    <!-- FEEDBACK -->
+    <div class="feedback-box" *ngIf="current.answered" [class.fb-correct]="current.correct" [class.fb-wrong]="!current.correct">
+      <div class="fb-title">{{ current.correct ? '✅ ¡Correcto! +8 pts' : '❌ Incorrecto' }}</div>
+
+      <div *ngIf="!current.correct">
+        Tu respuesta: <b>{{ current.chosen }}</b><br>
+        Correcta: <b>{{ current.phrase.es }}</b>
+      </div>
+
+      <div *ngIf="current.correct">{{ current.phrase.note }}</div>
+
+      <button *ngIf="!current.correct" class="explain-btn" (click)="toggleExplain()">
+        {{ current.showExplain ? '🔼 Ocultar' : '💡 Explícame mi error' }}
+      </button>
+      <div class="explain-box" *ngIf="current.showExplain">
+        <b>"{{ current.phrase.en }}"</b> significa <b>"{{ current.phrase.es }}"</b>, no "{{ current.chosen }}".<br><br>
+        {{ current.phrase.note }}
+      </div>
+    </div>
+
+    <div class="btn-row" *ngIf="current.answered">
+      <button class="btn btn-primary" (click)="next()">
+        {{ currentIndex < questions.length - 1 ? 'Siguiente →' : '📊 Ver calificación' }}
+      </button>
+    </div>
+
+  </ng-container>
+
+  <!-- RESULTADO FINAL -->
+  <div class="final-card" *ngIf="finished">
+    <div class="final-icon">🏆</div>
+    <div class="final-label">Calificación</div>
+    <div class="final-score">{{ correctCount }}/{{ questions.length }}</div>
+    <div class="final-pct">{{ pct }}%</div>
+    <div class="final-stars">{{ stars }}</div>
+    <div class="final-level" [ngClass]="levelClass">{{ levelText }}</div>
+
+    <div class="time-up-badge" *ngIf="timeUp">
+      ⏰ ¡Tiempo agotado!
+    </div>
+
+    <div class="penalty-badge" *ngIf="penaltyApplied">
+      ⚠️ Se aplicó penalización por cambio de pestaña
+    </div>
+
+    <div class="result-stats">
+      <div class="rs"><div class="rs-num green">✅ {{ correctCount }}</div><div class="rs-lbl">Correctas</div></div>
+      <div class="rs"><div class="rs-num red">❌ {{ questions.length - correctCount }}</div><div class="rs-lbl">Incorrectas</div></div>
+      <div class="rs"><div class="rs-num blue">⏱️ {{ timeStr }}</div><div class="rs-lbl">Tiempo</div></div>
+      <div class="rs"><div class="rs-num gold">🏅 {{ score }}</div><div class="rs-lbl">Puntos</div></div>
+    </div>
+
+    <!-- ANÁLISIS DE ERRORES -->
+    <div class="retro-box" *ngIf="wrongItems.length > 0">
+      <h3>🔍 Análisis inteligente de errores</h3>
+      <p class="retro-sub">Debes repasar estas expresiones:</p>
+      <div *ngFor="let p of wrongItems" class="retro-item">
+        <span class="ri-icon">❌</span>
+        <span class="ri-en">{{ p.en }}</span>
+        <span class="ri-dash">—</span>
+        <span class="ri-es">{{ p.es }}</span>
+      </div>
+    </div>
+
+    <div class="perfect-box" *ngIf="wrongItems.length === 0">
+      🌟 ¡Sin errores! Dominas todas las expresiones.
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" (click)="start()">🔄 Repetir examen</button>
+      <button class="btn btn-secondary" routerLink="/">🏠 Inicio</button>
+    </div>
+  </div>
+
+</div>

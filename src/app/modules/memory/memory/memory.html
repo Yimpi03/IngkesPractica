@@ -1,0 +1,58 @@
+<div class="mem-wrap">
+
+  <h2 class="mod-title">🧠 Juego de Memoria</h2>
+  <p class="mod-sub">Encuentra todas las parejas inglés–español</p>
+
+  <div class="diff-row">
+    <button class="diff-btn" [class.active]="numPairs===6" (click)="setDiff(6)">🌱 Fácil (6)</button>
+    <button class="diff-btn" [class.active]="numPairs===8" (click)="setDiff(8)">🚀 Normal (8)</button>
+    <button class="diff-btn" [class.active]="numPairs===10" (click)="setDiff(10)">🔥 Difícil (10)</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-chip">🎴 Movimientos: <b>{{ moves }}</b></div>
+    <div class="stat-chip">⏱️ <b>{{ timeStr }}</b></div>
+    <div class="stat-chip">✅ Parejas: <b>{{ matched }}/{{ numPairs }}</b></div>
+  </div>
+
+  <div class="win-banner" *ngIf="won">
+    <div class="win-medal">{{ medal }}</div>
+    <div class="win-text">
+      ¡Completado en {{ moves }} movimientos · {{ timeStr }}!
+      <span *ngIf="bestScore === moves" style="display:block;font-size:0.8rem;color:#B8860B;">🏆 ¡NUEVO RÉCORD!</span>
+    </div>
+  </div>
+
+  <div class="mem-grid" [style.grid-template-columns]="'repeat(' + (numPairs <= 6 ? 3 : 4) + ', 1fr)'">
+
+    <div
+      *ngFor="let card of cards; let i = index; trackBy: trackById"
+      class="mem-card"
+      [ngClass]="{
+        'flipped': card.state === 'revealed' || card.state === 'matched',
+        'matched': card.state === 'matched',
+        'wrong': card.state === 'wrong'
+      }"
+      (click)="click(i)"
+      role="button"
+      tabindex="0"
+      (keydown.enter)="click(i)">
+
+      <div class="mem-inner">
+        <div class="mem-front">
+          <span class="qmark">?</span>
+        </div>
+        <div class="mem-back">
+          <span class="mem-text">{{ card.text }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" (click)="init()">🔄 Nueva partida</button>
+    <button class="btn btn-secondary" *ngIf="won" (click)="init()">⏭️ Siguiente ronda</button>
+  </div>
+
+</div>
